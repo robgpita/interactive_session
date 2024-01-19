@@ -6,12 +6,31 @@ f_install_miniconda() {
     echo "Installing Miniconda3-latest-Linux-x86_64.sh"
     conda_repo="https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
     ID=$(date +%s)-${RANDOM} # This script may run at the same time!
-    nohup wget ${conda_repo} -O /tmp/miniconda-${ID}.sh 2>&1 > /tmp/miniconda_wget-${ID}.out
+    
+    check_repo_access_cmd="curl --output /dev/null --silent --head --fail --max-time 10 https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
+
+    if $(eval "${check_repo_access_cmd}"); then
+        echo "Connection successful. ${conda_repo} is accessible."
+        wget ${conda_repo} -O /tmp/miniconda-${ID}.sh
+
+    elif [ "$jobschedulertype" == "SLURM" ] || [ "$jobschedulertype" == "PBS" ]; then
+        echo "Connection to ${conda_repo} failed. Attepting to use controller node to establish connection..."
+        if $(ssh ${resource_privateIp} ${check_repo_access_cmd}); then
+            echo "Connection successful. File is accessible."
+            ssh ${resource_privateIp} "wget ${conda_repo} -O /tmp/miniconda-${ID}.sh"
+            scp ${resource_privateIp}:/tmp/miniconda-${ID}.sh /tmp/miniconda-${ID}.sh
+            ssh ${resource_privateIp} rm ${resource_privateIp}:/tmp/miniconda-${ID}.sh
+        else
+            displayErrorMessage "Connection failed. Unable to access ${conda_repo}"
+        fi
+    else
+        displayErrorMessage "Connection failed. Unable to access ${conda_repo}"
+    fi
+
     rm -rf ${install_dir}
     mkdir -p $(dirname ${install_dir})
-    nohup bash /tmp/miniconda-${ID}.sh -b -p ${install_dir} 2>&1 > /tmp/miniconda_sh-${ID}.out
+    bash /tmp/miniconda-${ID}.sh -b -p ${install_dir}
 }
-
 
 
 if [[ "${service_conda_install}" == "true" ]]; then
