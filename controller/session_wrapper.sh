@@ -38,10 +38,12 @@ echo "sed -i \"s/.*JOB_STATUS.*/    \\\"JOB_STATUS\\\": \\\"Cancelled\\\",/\"" $
 echo "exit 0" >> ${kill_sh}
 chmod 777 ${kill_sh}
 
+SSH_USERCONTAINER_OPTIONS="-F ${resource_workdir}/pw/.pw/config -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+
 # TUNNEL COMMANDS:
-SERVER_TUNNEL_CMD="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -fN -R 0.0.0.0:$openPort:localhost:\$servicePort ${USER_CONTAINER_HOST}"
+SERVER_TUNNEL_CMD="ssh ${SSH_USERCONTAINER_OPTIONS} -fN -R 0.0.0.0:$openPort:localhost:\$servicePort ${USER_CONTAINER_HOST}"
 # Cannot have different port numbers on client and server or license checkout fails!
-LICENSE_TUNNEL_CMD="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -fN -L 0.0.0.0:${advanced_options_license_server_port}:localhost:${advanced_options_license_server_port} -L 0.0.0.0:${advanced_options_license_daemon_port}:localhost:${advanced_options_license_daemon_port} ${USER_CONTAINER_HOST}"
+LICENSE_TUNNEL_CMD="ssh ${SSH_USERCONTAINER_OPTIONS} -fN -L 0.0.0.0:${advanced_options_license_server_port}:localhost:${advanced_options_license_server_port} -L 0.0.0.0:${advanced_options_license_daemon_port}:localhost:${advanced_options_license_daemon_port} ${USER_CONTAINER_HOST}"
 
 # Initiallize session batch file:
 echo "Generating session script"
@@ -58,7 +60,7 @@ if ! [ -z "${resource_jobdir}" ] && ! [[ "${resource_jobdir}" == "default" ]]; t
 fi
 
 cat >> ${session_sh} <<HERE
-sshusercontainer="ssh -f -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${USER_CONTAINER_HOST}"
+sshusercontainer="ssh ${SSH_USERCONTAINER_OPTIONS} ${USER_CONTAINER_HOST}"
 
 displayErrorMessage() {
     echo \$(date): \$1

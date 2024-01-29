@@ -7,12 +7,12 @@ source lib.sh
 
 # TUNNEL COMMAND:
 if [ -z "$servicePort" ]; then
-    SERVER_TUNNEL_CMD="ssh -J ${resource_privateIp} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -fN -R 0.0.0.0:$openPort:0.0.0.0:\$servicePort ${USER_CONTAINER_HOST}"
+    SERVER_TUNNEL_CMD=" -fN -R 0.0.0.0:$openPort:0.0.0.0:\$servicePort ${USER_CONTAINER_HOST}"
 else
-    SERVER_TUNNEL_CMD="ssh -J ${resource_privateIp} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -fN -R 0.0.0.0:$openPort:0.0.0.0:$servicePort ${USER_CONTAINER_HOST}"
+    SERVER_TUNNEL_CMD=" -fN -R 0.0.0.0:$openPort:0.0.0.0:$servicePort ${USER_CONTAINER_HOST}"
 fi
 # Cannot have different port numbers on client and server or license checkout fails!
-LICENSE_TUNNEL_CMD="ssh -J ${resource_privateIp} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -fN -L 0.0.0.0:${advanced_options_license_server_port}:localhost:${advanced_options_license_server_port} -L 0.0.0.0:${advanced_options_license_daemon_port}:localhost:${advanced_options_license_daemon_port} ${USER_CONTAINER_HOST}"
+LICENSE_TUNNEL_CMD=" -fN -L 0.0.0.0:${advanced_options_license_server_port}:localhost:${advanced_options_license_server_port} -L 0.0.0.0:${advanced_options_license_daemon_port}:localhost:${advanced_options_license_daemon_port} ${USER_CONTAINER_HOST}"
 
 # Initiallize session batch file:
 echo "Generating session script"
@@ -48,7 +48,15 @@ mkdir -p ${resource_jobdir}
 cd ${resource_jobdir}
 
 echo "Running in host \$(hostname)"
-sshusercontainer="ssh -f -J ${resource_privateIp} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null ${USER_CONTAINER_HOST}"
+
+# For compatibility with On-Prem provider
+if [ -f ${resource_workdir}/pw/.pw/config_compute ]; then
+    SSH_USERCONTAINER_OPTIONS="-F ${resource_workdir}/pw/.pw/config_compute -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+else
+    SSH_USERCONTAINER_OPTIONS="-F ${resource_workdir}/pw/.pw/config -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+fi
+
+sshusercontainer="ssh -f \${SSH_USERCONTAINER_OPTIONS} ${USER_CONTAINER_HOST}"
 
 displayErrorMessage() {
     echo \$(date): \$1
@@ -111,15 +119,15 @@ echo Test command to run in user container: telnet localhost $openPort
 echo
 
 # Create a port tunnel from the allocated compute node to the user container (or user node in some cases)
-echo "${SERVER_TUNNEL_CMD} </dev/null &>/dev/null &"
-${SERVER_TUNNEL_CMD} </dev/null &>/dev/null &
+echo "ssh \${SSH_USERCONTAINER_OPTIONS} ${SERVER_TUNNEL_CMD} </dev/null &>/dev/null &"
+ssh \${SSH_USERCONTAINER_OPTIONS} ${SERVER_TUNNEL_CMD} </dev/null &>/dev/null &
 
 if ! [ -z "${advanced_options_license_env}" ]; then
     # Export license environment variable
     export ${advanced_options_license_env}=${advanced_options_license_server_port}@localhost
     # Create tunnel
-    echo "${LICENSE_TUNNEL_CMD} </dev/null &>/dev/null &"
-    ${LICENSE_TUNNEL_CMD} </dev/null &>/dev/null &
+    echo "ssh \${SSH_USERCONTAINER_OPTIONS} ${LICENSE_TUNNEL_CMD} </dev/null &>/dev/null &"
+    ssh \${SSH_USERCONTAINER_OPTIONS} ${LICENSE_TUNNEL_CMD} </dev/null &>/dev/null &
 fi
 
 echo "Exit code: \$?"
