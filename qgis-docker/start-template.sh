@@ -98,9 +98,10 @@ fi
 project_dir=$(dirname ${service_project_file})
 project_file=$(basename ${service_project_file})
 qgis_container_name=qgis-server-${qgis_port}
+network_name=qgis-${qgis_port}
 
-sudo docker network create qgis-${qgis_port}
-sudo docker run ${gpu_flag} -d --rm --name ${qgis_container_name} ${service_mount_directories} --net=qgis --hostname=qgis-server \
+sudo docker network create ${network_name}
+sudo docker run ${gpu_flag} -d --rm --name ${qgis_container_name} ${service_mount_directories} --net=${network_name} --hostname=qgis-server \
     -v ${project_dir}:/data:ro -p ${qgis_port}:${qgis_port} \
     -e "QGIS_PROJECT_FILE=${project_file}" \
     qgis-server
@@ -143,7 +144,7 @@ container_name="nginx-${servicePort}"
 echo "sudo docker stop ${container_name}" >> cancel.sh
 echo "sudo docker rm ${container_name}" >> cancel.sh
 # Start container
-sudo docker run -d --rm --name ${container_name} --net=qgis --hostname=nginx \
+sudo docker run -d --rm --name ${container_name} --net=${network_name} --hostname=nginx \
               -v $(pwd)/nginx.conf:/etc/nginx/conf.d/default.conf:ro -p ${servicePort}:80 \
               nginx:1.13
 # Print logs
