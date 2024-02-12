@@ -48,7 +48,7 @@ sudo docker logs qgis-server
 echo "Starting nginx wrapper on service port ${servicePort}"
 
 # Write config file
-cat >> config.conf <<HERE
+cat >> nginx.conf <<HERE
 server {
   listen 80;
   server_name _;
