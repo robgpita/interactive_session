@@ -50,7 +50,7 @@ echo "Starting nginx wrapper on service port ${servicePort}"
 # Write config file
 cat >> config.conf <<HERE
 server {
-  listen ${servicePort};
+  listen 80;
   server_name _;
   location / {
     root  /usr/share/nginx/html;
@@ -73,7 +73,7 @@ echo "sudo docker stop ${container_name}" >> cancel.sh
 echo "sudo docker rm ${container_name}" >> cancel.sh
 # Start container
 sudo docker run -d --rm --name ${container_name} --net=qgis --hostname=nginx \
-              -v $(pwd)/nginx.conf:/etc/nginx/conf.d/default.conf:ro -p 8080:80 \
+              -v $(pwd)/nginx.conf:/etc/nginx/conf.d/default.conf:ro -p ${servicePort}:80 \
               nginx:1.13
 # Print logs
 sudo docker logs ${container_name}
