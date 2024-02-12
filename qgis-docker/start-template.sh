@@ -74,7 +74,7 @@ echo "sudo docker rm ${container_name}" >> cancel.sh
 # Start container
 sudo docker run -d --rm --name ${container_name} --net=qgis --hostname=nginx \
               -v $(pwd)/nginx.conf:/etc/nginx/conf.d/default.conf:ro -p ${servicePort}:80 \
-              nginx:1.13
+              nginx/nginx:1.13
 # Print logs
 sudo docker logs ${container_name}
 
