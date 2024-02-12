@@ -34,7 +34,7 @@ sudo docker run ${gpu_flag} -d --rm --name qgis-server ${service_mount_directori
     -e "QGIS_PROJECT_FILE=${project_file}" \
     ${service_docker_repo}
 
-
+echo "sudo docker network rm qgis" >> cancel.sh
 echo "sudo docker stop qgis-server" >> cancel.sh
 echo "sudo docker rm qgis-server" >> cancel.sh
 
