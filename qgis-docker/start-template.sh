@@ -72,7 +72,9 @@ container_name="nginx-${servicePort}"
 echo "sudo docker stop ${container_name}" >> cancel.sh
 echo "sudo docker rm ${container_name}" >> cancel.sh
 # Start container
-sudo docker run  -d --name ${container_name}  -v $PWD/config.conf:/etc/nginx/conf.d/config.conf --network=host nginxinc/nginx-unprivileged
+sudo docker run -d --rm --name ${container_name} --net=qgis --hostname=nginx \
+              -v $(pwd)/nginx.conf:/etc/nginx/conf.d/default.conf:ro -p 8080:80 \
+              nginx:1.13
 # Print logs
 sudo docker logs ${container_name}
 
