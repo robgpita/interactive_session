@@ -1,1 +1,1 @@
-export URLEND="qgis-server/\?SERVICE=WMS&VERSION=1.3.0&REQUEST=GetCapabilities\""
+export URLEND="qgis-server/\?SERVICE\=WMS\&VERSION\=1.3.0&REQUEST\=GetCapabilities\""
