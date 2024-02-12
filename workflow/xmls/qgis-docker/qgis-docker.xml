@@ -3,7 +3,7 @@
   <cancel interpreter='bash'>kill.sh</cancel>
   <inputs>
     <section name='service' type='section' title='Jupyter Server' expanded='true'>
-        <param name='name' label='Service' type='hidden' value='matlab-docker'></param>
+        <param name='name' label='Service' type='hidden' value='qgis-docker'></param>
         <param name='docker_repo' label='Docker repository' type='text' value='qgis-server' help='Docker repository to start with docker run'></param>
         <param name='project_file' label='Project file' type='text' value='default' help='Path to a project file on the server host. Use default to use the official default project file'></param>
         <param name='mount_directories' label='Docker mount volumnes' type='text' value='' help='Type in the mount volume options for the docker command. E.g.: -v /lustre:/lustre -v /contrib:/contrib'></param>
