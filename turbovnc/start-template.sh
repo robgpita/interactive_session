@@ -155,25 +155,6 @@ if ! [[ $kernel_version == *microsoft* ]]; then
 
     bootstrap_tgz ${novnc_tgz} ${novnc_dir}
 
-    # Start service
-    ${service_vnc_exec} -kill ${DISPLAY}
-
-    # To prevent the process from being killed at startime
-    sed -i '/vncserver -kill $DISPLAY/ s/^#*/#/' ~/.vnc/xstartup
-
-    
-    # service_vnc_type needs to be an input to the workflow in the XML
-    # if vncserver is not tigervnc
-    if [[ ${service_vnc_type} == "turbovnc" ]]; then
-        ${service_vnc_exec} ${DISPLAY} -SecurityTypes None
-    else
-        # tigervnc
-        ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
-        # Retry 
-        sleep 5
-        ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
-    fi
-  
     rm -f ${resource_jobdir}/service.pid
     touch ${resource_jobdir}/service.pid
 
@@ -231,7 +212,23 @@ if ! [[ $kernel_version == *microsoft* ]]; then
         xfce4-session &
         echo $! > ${resource_jobdir}/service.pid
     fi
-    sleep 5
+    
+    # Start service
+    ${service_vnc_exec} -kill ${DISPLAY}
+
+    # To prevent the process from being killed at startime
+    sed -i '/vncserver -kill $DISPLAY/ s/^#*/#/' ~/.vnc/xstartup
+
+    
+    # service_vnc_type needs to be an input to the workflow in the XML
+    # if vncserver is not tigervnc
+    if [[ ${service_vnc_type} == "turbovnc" ]]; then
+        ${service_vnc_exec} ${DISPLAY} -SecurityTypes None
+    else
+        # tigervnc
+        ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
+    fi
+  
 fi
 
 cd ${novnc_dir}
