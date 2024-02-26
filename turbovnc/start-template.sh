@@ -214,6 +214,7 @@ if ! [[ $kernel_version == *microsoft* ]]; then
     fi
 
     # Start service
+    mkdir -p ~/.vnc
     ${service_vnc_exec} -kill ${DISPLAY}
 
     # To prevent the process from being killed at startime    
@@ -232,7 +233,9 @@ if ! [[ $kernel_version == *microsoft* ]]; then
         ${service_vnc_exec} ${DISPLAY} -SecurityTypes None
     else
         # tigervnc
+        cat  ~/.vnc/xstartup
         ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
+        cat ~/.vnc/xstartup
     fi
   
 fi
