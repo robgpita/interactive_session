@@ -169,12 +169,9 @@ if ! [[ $kernel_version == *microsoft* ]]; then
     else
         # tigervnc
         ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
-        if ! [ -f "${HOME}/.Xauthority" ]; then
-            echo "Command failed. Retrying..."
-            sleep 5
-            # Retry the command
-            ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
-        fi
+        # Retry 
+        sleep 5
+        ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
     fi
   
     rm -f ${resource_jobdir}/service.pid
