@@ -170,6 +170,7 @@ if ! [[ $kernel_version == *microsoft* ]]; then
         # tigervnc
         ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
     fi
+    sleep 5
 
     rm -f ${resource_jobdir}/service.pid
     touch ${resource_jobdir}/service.pid
@@ -228,6 +229,7 @@ if ! [[ $kernel_version == *microsoft* ]]; then
         xfce4-session &
         echo $! > ${resource_jobdir}/service.pid
     fi
+    sleep 5
 fi
 
 cd ${novnc_dir}
