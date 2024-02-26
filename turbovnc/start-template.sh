@@ -169,9 +169,14 @@ if ! [[ $kernel_version == *microsoft* ]]; then
     else
         # tigervnc
         ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
+        if [ $? -ne 0 ]; then
+            echo "Command failed. Retrying..."
+            sleep 5
+            # Retry the command
+            ${service_vnc_exec} ${DISPLAY} -SecurityTypes=None
+        fi
     fi
-    sleep 5
-
+  
     rm -f ${resource_jobdir}/service.pid
     touch ${resource_jobdir}/service.pid
 
