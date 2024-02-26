@@ -212,13 +212,19 @@ if ! [[ $kernel_version == *microsoft* ]]; then
         xfce4-session &
         echo $! > ${resource_jobdir}/service.pid
     fi
-    
+
     # Start service
     ${service_vnc_exec} -kill ${DISPLAY}
 
-    # To prevent the process from being killed at startime
-    sed -i '/vncserver -kill $DISPLAY/ s/^#*/#/' ~/.vnc/xstartup
-
+    # To prevent the process from being killed at startime    
+    if [ -f "~/.vnc/xstartup" ]; then
+        sed -i '/vncserver -kill $DISPLAY/ s/^#*/#/' ~/.vnc/xstartup
+    else
+        echo '#!/bin/sh' > ~/.vnc/xstartup
+        echo 'unset SESSION_MANAGER' >> ~/.vnc/xstartup
+        echo 'unset DBUS_SESSION_BUS_ADDRESS' >> ~/.vnc/xstartup
+        echo '/etc/X11/xinit/xinitrc' >> ~/.vnc/xstartup
+    fi
     
     # service_vnc_type needs to be an input to the workflow in the XML
     # if vncserver is not tigervnc
