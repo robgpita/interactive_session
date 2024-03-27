@@ -83,7 +83,7 @@ if [[ "${service_conda_install}" == "true" ]]; then
             # Check if SLURM is installed
             if command -v sinfo &> /dev/null; then
                 # SLURM extension for Jupyter Lab https://github.com/NERSC/jupyterlab-slurm
-                pip install jupyterlab_slurm
+                conda install krinsman::jupyterlab-slurm
             fi
         fi
     fi
